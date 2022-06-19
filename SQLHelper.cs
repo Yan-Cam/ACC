@@ -13,7 +13,7 @@ namespace aac
    public class SQLHelper
    {
        //定义连接字符串
-       private static string connString = "server=111.229.179.231;port=3306;database=asp;user=root;Password=19495201314qq`;CharSet=utf8;";
+       private static string connString = "server=你的数据库ip地址;port=3306;database=asp;user=你的账号;Password=你的密码;CharSet=utf8;";
        
        //执行增删改
        public static int ExecuteNonQuery(string sql, params MySqlParameter[] pms)
