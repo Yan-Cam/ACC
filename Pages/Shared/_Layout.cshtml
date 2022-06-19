@@ -1,0 +1,194 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - 通讯录</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/aac.styles.css" asp-append-version="true" />
+
+    <link rel="stylesheet" type="text/css" href="~/lib/easyui/themes/bootstrap/easyui.css">
+    <!--引入CSS样式-->
+    <link rel="stylesheet" type="text/css" href="~/lib/easyui/themes/icon.css">
+ 
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container">
+                <a class="navbar-brand" asp-area="" asp-page="/Index">通讯录</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">主页</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">隐私政策</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2022 - aac - <a asp-area="" asp-page="/Privacy">Privacy</a>
+        </div>
+    </footer>
+    <script language="JavaScript" type="text/javascript" src="~/lib/easyui/jquery.min.js" charset="utf-8"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/4.0.0/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <!--(指定编码方式，防止出现乱码)引入EasyUI中使用的Jquery版本-->
+    <script language="JavaScript" type="text/javascript" src="~/lib/easyui/jquery.easyui.min.js" charset="utf-8"></script>
+    <!--(指定编码方式，防止出现乱码)引入EasyUi文件-->
+   <!--Icon引入-->
+    <script language="JavaScript" type="text/javascript" src="~/lib/easyui/locale/easyui-lang-zh_CN.js"></script>
+    <script>
+        $(function () {
+            initTable();
+        });
+        function initTable(queryData) {
+        $('#test1').datagrid({
+        	
+            url: 'https://localhost:7026/api/ccs',
+            title: '通讯录',
+            iconCls: 'icon-save',
+            height: 368,
+            nowrap: true,
+            autoRowHeight: false,
+            striped: true,
+            collapsible: true,
+            pagination: true,
+            rownumbers: true,
+            sortOrder: 'asc',
+            remoteSort: false,
+            idField: 'ID',
+            pageSize:20,
+            queryParams: queryData,
+
+            frozenColumns: [[
+            	{ field: 'ck', checkbox: true },
+                {field:'uid',title:'uid',width:200,editor:{
+						type:'validatebox',
+							options:{}
+                }},    
+                {field:'name',title:'联系人姓名',width:100,editor:{
+						type:'validatebox',
+							options:{}
+                }},    
+                {field:'phone',title:'电话',width:300,editor:{
+						type:'validatebox',
+							options:{}
+                }},
+                {field:'wechat',title:'微信号',width:100,editor:{
+						type:'validatebox',
+							options:{}
+                }}, 
+                {field:'qq',title:'qq号',width:100,editor:{
+						type:'validatebox',
+							options:{}
+                }}, 
+                {field:'address',title:'住址',width:100,editor:{
+						type:'validatebox',
+							options:{}
+                }}
+             ]],
+
+			 toolbar:
+				 [{
+					text:'添加数据',
+					iconCls:'icon-add',
+					handler:function(){
+						$("#test1").datagrid("insertRow",{
+															index:0,
+															row:{}
+															});	
+						$("#test1").datagrid("beginEdit",0);
+						
+										}
+				   },
+				   {
+					text:'编辑数据',
+					iconCls:'icon-edit',
+					handler:function(){
+						var hasSelect = $("#test1").datagrid("getSelections");
+						if(hasSelect.length == 1){
+							//alert(hasSelect[0].name);
+							var row = hasSelect[0];
+							rowNumber = $("#test1").datagrid("getRowIndex",row);
+							$("#test1").datagrid("beginEdit",rowNumber);
+						}
+						
+						
+					}
+				   },
+				   {
+					text:'保存修改',
+					iconCls:'icon-save',
+					handler:function(){		
+                        var addrows = $("#test1").datagrid('getRows');
+                        for(var i=0; i<addrows.length; i++) {
+                        $('#test1').datagrid('endEdit', i);
+                      
+                      }  
+                      }
+
+					},
+                    {
+					text:'删除选中',
+					iconCls:'icon-clear',
+					handler:function(){		
+                    var rows = $("#test1").datagrid('getSelections'); 
+                    for(var i=0; i<rows.length; i++) {
+                    $('#test1').datagrid('deleteRow', i);
+                    }
+                        update()
+					}
+
+					}],
+					
+			  pagination:true,
+			  onAfterEdit:function(index,data,changes){
+                  update()
+			  }
+			 
+	
+	}); 
+
+        }
+                       function update() {
+                        var rows = $("#test1").datagrid("getRows");
+                        let json = ""
+                        $.each(rows,function(index,value){
+                            json += '{"uid":'+value.uid+',"name":"'+value.name+'","phone":"'+value.phone+'","wechat":"'+value.wechat+'","qq":"'+value.qq+'","address":"'+value.address+'"},'
+                        });
+                        console.log(typeof(json))
+                        json = json.substring(0,json.length-1)
+                        json = '{"rows":['+json+']}'
+                        console.log(json)
+                        var obj=$.parseJSON(json);
+                        fetch("https://localhost:7026/api/update", {
+                            method: "post",
+                            body: JSON.stringify(obj),
+                            headers: {
+                                "Content-Type": "application/json"
+                            }
+                        }).then(data => data.json())
+                            .then(res => console.log(res));
+        }
+ 
+</script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
